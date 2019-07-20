@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const morgan = require('morgan');
 const genres = require('./routes/genres');
+const customers = require('./routes/customers');
 const app = express();
 
 mongoose.connect('mongodb://localhost/vidly', { useNewUrlParser : true})
@@ -8,8 +10,10 @@ mongoose.connect('mongodb://localhost/vidly', { useNewUrlParser : true})
     .catch(err => console.log(err));
 
 // enable req.body json parse 
+app.use(morgan('tiny'));
 app.use(express.json());
 app.use('/api/genres', genres);
+app.use('/api/customers', customers);
 
 app.get('/', (req, res) => {
     res.send('WELCOME TO VIDLY : The Video Rental App');
