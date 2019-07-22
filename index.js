@@ -1,9 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const Joi = require('@hapi/joi');
+Joi.objectId = require('joi-objectid')(Joi);
 const morgan = require('morgan');
 const genres = require('./routes/genres');
 const customers = require('./routes/customers');
 const movies = require('./routes/movies');
+const rentals = require('./routes/rentals');
+const users = require('./routes/users');
+const auth = require('./routes/auth');
 const app = express();
 
 mongoose.connect('mongodb://localhost/vidly', { useNewUrlParser : true})
@@ -16,6 +21,10 @@ app.use(express.json());
 app.use('/api/genres', genres);
 app.use('/api/customers', customers);
 app.use('/api/movies', movies);
+app.use('/api/rentals', rentals);
+app.use('/api/users', users);
+app.use('/api/auth', auth)
+
 
 app.get('/', (req, res) => {
     res.send('WELCOME TO VIDLY : The Video Rental App');

@@ -1,8 +1,13 @@
 const {Rental, validateRental} = require('../models/rental'); 
 const {Movie} = require('../models/movie'); 
 const {Customer} = require('../models/customer'); 
+const mongoose = require('mongoose');
+const Fawn = require('fawn');
 const express = require('express');
 const router = express.Router();
+
+// Initializing Fawn
+Fawn.init(mongoose);
 
 // GET ROUTES
 router.get('/', async (req, res) => {
@@ -12,7 +17,6 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const rental = await Rental.findById(req.params.id);
-  
     if (!rental) return res.status(404).send('The rental with the given ID was not found.');
   
     res.send(rental);
@@ -22,6 +26,12 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const { error } = validateRental(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
+
+  /*  BAD way to handle invalid objectID app crash problem
+   
+    if(!mongoose.Types.ObjectId.isValid(req.body.customerId)) 
+      return res.status(400).send('Invalid customer') 
+  */
 
   const customer = await Customer.findById(req.body.customerId);
   if (!customer) return res.status(400).send('Invalid customer.');
@@ -43,12 +53,27 @@ router.post('/', async (req, res) => {
       dailyRentalRate: movie.dailyRentalRate
     }
   });
+  /* 
   rental = await rental.save();
-
   movie.numberInStock--;
-  movie.save();
+  movie.save(); 
+  */
+  try {
+    new Fawn.Task()
+    .save('rentals', rental)
+    .update('movies', { _id : movie._id }, {
+      $inc : { numberInStock : -1 }
+    })
+    //.remove()
+    .run();
   
-  res.send(rental);
+    res.send(rental);
+  }
+  catch(ex) {
+    // status 500 - Internal Server Error
+    res.status(500).send('something Failed');
+  }
+  
 });
 
 module.exports = router; 

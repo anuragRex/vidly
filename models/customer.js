@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
 
-const Customer = mongoose.model('Customer', new mongoose.Schema({
+const Customer = mongoose.model('customers', new mongoose.Schema({
     name : {
         type : String,
         required : true,
