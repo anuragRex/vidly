@@ -3,6 +3,7 @@ const {Movie} = require('../models/movie');
 const {Customer} = require('../models/customer'); 
 const mongoose = require('mongoose');
 const Fawn = require('fawn');
+const auth = require('../middlewares/auth');
 const express = require('express');
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.get('/:id', async (req, res) => {
 });
   
 // POST ROUTE
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   const { error } = validateRental(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
 
